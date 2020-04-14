@@ -78,148 +78,80 @@ module.exports = class extends Generator {
 	 */
 	writing() {
 
-		//----------------------------------
-		// Template main file
-		//----------------------------------
-		var style = this.answers.style 
-		var use_biber = this.answers.bib
-		var template_main = () => {
-			// use biber 
-			var bib_template;
-			if (use_biber) {
-				bib_template = stripIndent`
-				% use biber engine
-				\\printbibliography
-
-				% manual bib insertion
-				% \\begin{thebibliography}{99} % means 1 digit of entries (<10)
-				% \\bibitem{bibref}
-				% \tbib information
-				% \\end{thebibliography}`.trim()
-			} else {
-				bib_template = stripIndent`
-				% use biber engine
-				% \\printbibliography
-
-				manual bib insertion
-				\\begin{thebibliography}{99} % means 1 digit of entries (<10)
-				\\bibitem{bibref}
-				\tbib information
-				\\end{thebibliography}`.trim()
-			}
-
-			// template main
+		//------------------------------------------
+		// Copy files (symbolic links) from template
+		//------------------------------------------
+		var style = this.answers.style
+		var boiler_plate = () => {
 			this.fs.copyTpl(
-				this.templatePath(style + "/" + "main/main.tex"),
-				this.destinationPath("main/main.tex"),
-				{
-					bib: bib_template
-				}
-			)
-		}
-
-		//----------------------------------
-		// Copy other boiler main material
-		//----------------------------------
-		var basic_files = [
-			"abstract.tex", 
-			"preamble.sty",
-			"refextdoc_"+style+".sty",
-			"titlepage.tex",
-			style!="chapter" ? "custom.sty" : "custom_"+style+".sty",
-			style=="chapter" ? "acknowledgements.tex" : ""
-		]
-
-		basic_files.forEach((filename) => {
-			// remove any underscores to destination path
-			var dst_filename = filename.replace(/\_.*\./, ".")
-			this.fs.copy(
-				this.templatePath("boilerplate/" + filename),
-				this.destinationPath("main/" + dst_filename),
-			)
-		})
-		
-		//----------------------------------
-		// Copy other boiler plate material
-		//----------------------------------
-		var path_mapping = {
-			tables: {src: "boilerplate/tables/*"},
-			graphics: {src: "boilerplate/graphics/*"},
-			bib: {src: "boilerplate/bib/*"},
-		}
-		switch (this.answers.style ) {
-			case "single":
-				path_mapping.tables.dst = style+"/tables/"
-				path_mapping.graphics.dst = style+"/graphics/"
-				path_mapping.bib.dst = style+"/bib/"
-				break
-			case "input":
-				path_mapping.tables.dst = style+"/tables/"
-				path_mapping.graphics.dst = style+"/graphics/"
-				path_mapping.bib.dst = style+"/bib/"
-				break
-			case "include":
-				path_mapping.tables.dst = style+"/tables/"
-				path_mapping.graphics.dst = style+"/graphics/"
-				path_mapping.bib.dst = style+"/bib/"
-				break
-			case "subfile":
-				path_mapping.tables.dst = style+"/tables/"
-				path_mapping.graphics.dst = style+"/graphics/"
-				path_mapping.bib.dst = style+"/bib/"
-				break
-			case "chapter":
-
-				break
-		}
-
-		//----------------------------------
-		// Template some files
-		//----------------------------------
-		var template_files = () => {
-			this.fs.copyTpl(
-				this.templatePath(),
+				this.templatePath("boilerplate/*"),
 				this.destinationPath(),
 				{
-					key: value
+					name: this.answers.name,
+					author: this.answers.author,
+					description: this.answers.description,
 				},
 				{},
 				{
 					globOptions: {
-						ignore: ["a", "b"],
+						ignore: [],
 						dot: true
 					}
 				}
 			)
 		}
-		//----------------------------------
-		// Write some custom code
-		//----------------------------------
-		var write_files = () => {
-			this.fs.write(
-				path.join(__dirname, "file_name"),
-				"contents"
+
+		//------------------------------------------
+		// Copy files (symbolic links) from template
+		//------------------------------------------
+		var style = this.answers.style
+		var copy_files = () => {
+			var src_path;
+			switch (style) {
+				case "single":
+					src_path = "single"
+				case "input":
+					src_path = "input"
+				case "include":
+					src_path = "include"
+				case "subfile":
+					src_path = "subfile"
+				case "chapter":
+					src_path = "chapter"
+
+			}
+			this.fs.copy(
+				this.templatePath(src_path),
+				this.destinationPath()
 			)
 		}
 
 		//----------------------------------
-		// Use sub-generator to compose with
+		// Template some files
 		//----------------------------------
-		var use_subgenerator = () => {
-			this.composeWith(
-				require.resolve(path.join(__dirname, "..", "sub")),
-				{
-					option_value: "option_value"
-				}
-			)
+		var override_files = () => {
+			console.log("will be completed");
+			// this.fs.copyTpl(
+			// 	this.templatePath(),
+			// 	this.destinationPath(),
+			// 	{
+			// 		key: value
+			// 	},
+			// 	{},
+			// 	{
+			// 		globOptions: {
+			// 			ignore: ["a", "b"],
+			// 			dot: true
+			// 		}
+			// 	}
+			// )
 		}
+		
 
 		// call functions (in order)
-		template_main()
-		// copy_files()
-		// template_files()
-		// write_files()
-		// use_subgenerator()
+		boiler_plate()
+		copy_files()
+		override_files()
 	}
 
     /* 
