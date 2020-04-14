@@ -1,0 +1,3 @@
+[submodule "generators/_templates/template-latex"]
+	path = generators/_templates/template-latex
+	url = https://github.com/mrsunny0/template-latex.git

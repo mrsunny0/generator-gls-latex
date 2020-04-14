@@ -1,0 +1,31 @@
+{
+	"name": "generator-gls-latex",
+	"author": "George L Sun",
+	"version": "0.1.0",
+	"description": "Generator for LaTeX documents",
+	"files": [
+		"generators"
+	],
+	"keywords": [
+		"yeoman-generator"
+	],
+	"scripts": {
+		"test": "mocha -u bdd -R spec -t 500",
+		"test-all": "mocha -u bdd -R spec -t 500 --recursive",
+		"watch": "mocha -u bdd -R spec -t 500 --recursive --watch"
+	},
+	"dependencies": {
+		"yeoman-generator": "*",
+		"path": "*",
+		"fs-extra": "*",
+		"common-tags": "*"
+	},
+	"devDependencies": {
+		"gulp": "*",
+		"mocha": "*",
+		"chai": "*",
+		"yeoman-test": "*",
+		"yeoman-assert": "*"
+	},
+	"license": "MIT"
+}
